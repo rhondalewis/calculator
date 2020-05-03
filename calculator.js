@@ -1,39 +1,66 @@
+'use strict';
+
 const screen = document.querySelector(".screen");
 
-let screenBuffer = '0';
+
+let screenBuffer    = '0';
+let val1            = 0;
+let val2            = 0;
+let bufferOp        = undefined;
+
 
 function handleButtonClick(value) {
-    console.log(value);
-
-    if( isNaN(parseInt(value))) {
-        handleNonNumber(value);
-    } else {
-        handleNumber(value);
+    switch(value) {
+        case 'C':
+            resetCalculator();
+            break;
+        case '=':
+            val2 = parseInt(screenBuffer);
+            screenBuffer = bufferOp(val1,val2) || 0; 
+            break;
+        case '+':
+            val1 = parseInt(screenBuffer);
+            screenBuffer = 0;
+            bufferOp = (p1,p2) => { return p1 + p2; };
+            break;
+        case '-':
+            val1 = parseInt(screenBuffer);
+            screenBuffer = 0;
+            bufferOp = (p1,p2) => { return p1 - p2 };
+            break;
+        case 'x':
+            val1 = parseInt(screenBuffer);
+            screenBuffer = 0;
+            bufferOp = (p1,p2) => { return p1 * p2 };
+            break;
+        case '%':
+            val1 = parseInt(screenBuffer);
+            screenBuffer = 0;
+            bufferOp = (p1,p2) => { return p2 === 0 ? -1 : p1/p2 };
+            break;
+        default:
+            // we are a number
+            screenBuffer = screenBuffer=='0' ? value : screenBuffer + value; 
+            break;
     }
-
+    // console.log( "val1[" + val1 + "] val2[" + val2 + "] bufferOp[" + bufferOp + "]");
     rerender();
 
 }
-function handleNonNumber(value) {
-    if(value==='C' || value==='c') {
-        screenBuffer = '0';
-    }
+function resetCalculator() {
+    screenBuffer    = '0';
+    val1            = 0;
+    val2            = 0;
+    bufferOp        = undefined;
 }
-function handleNumber(value) {
-    if( screenBuffer === '0' ) {
-        screenBuffer = value;
-    } else {
-        screenBuffer += value;
-    }
-}
+
 
 function rerender()  {
     screen.innerText = screenBuffer;
 }
 
 function initialize() {
-    // console.log("initialize");
-    document.querySelector(".calc-container").addEventListener("click", function(event) {
+    document.querySelector(".calc-actions").addEventListener("click", function(event) {
         handleButtonClick(event.target.innerText);
     });
     rerender();
